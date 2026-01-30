@@ -3,6 +3,7 @@ package com.example.ecomProject.services;
 import com.example.ecomProject.exceptions.UserAlreadyExistsException;
 import com.example.ecomProject.exceptions.UsernameDoesntExist;
 import com.example.ecomProject.models.*;
+import com.example.ecomProject.models.dtos.CartResponse;
 import com.example.ecomProject.models.dtos.UserRequest;
 import com.example.ecomProject.models.dtos.UserResponse;
 import com.example.ecomProject.repo.ProductRepo;
@@ -11,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -126,7 +129,18 @@ public class UserService
             UserResponse x = new UserResponse();
             x.setName(u.getName());
             x.setUsername(u.getUsername());
-            x.setCartResponse(cartService.createCartResponse(u.getCart()));
+
+            // this is because the master has "null" as his cart
+            if (u.getCart() == null)
+            {
+                CartResponse cr = new CartResponse();
+                cr.setCartTotal(BigDecimal.ZERO);
+                cr.setItem_Quantity(new HashMap<>());
+                x.setCartResponse(cr);
+            }
+            else
+                x.setCartResponse(cartService.createCartResponse(u.getCart()));
+
             x.setOrderResponses(orderService.ordersToResponses(u.getOrders()));
             x.setRole(u.getRole());
             listOfUsers.add(x);

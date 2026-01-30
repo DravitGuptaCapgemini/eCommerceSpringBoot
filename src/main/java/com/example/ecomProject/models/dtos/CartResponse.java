@@ -16,5 +16,5 @@ import java.util.HashMap;
 public class CartResponse
 {
     HashMap<String, Integer> item_Quantity = new HashMap<>();
-    BigDecimal cartTotal;
+    BigDecimal cartTotal = BigDecimal.ZERO;
 }
