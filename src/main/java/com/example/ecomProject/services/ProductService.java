@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class ProductService
@@ -120,6 +121,19 @@ public class ProductService
             productResponses.add(prodToProdResp(p));
         }
 
+        return productResponses;
+    }
+
+    public List<ProductResponse> findRelated(String category, Set<Integer> idsPresent)
+    {
+        List<Product> products = rp.findByCategory(category); // rp is the product repository
+        List<ProductResponse> productResponses = new ArrayList<>();
+
+        for (Product p : products)
+        {
+            if (idsPresent.contains(p.getId()) == false)
+                productResponses.add(prodToProdResp(p));
+        }
         return productResponses;
     }
 }

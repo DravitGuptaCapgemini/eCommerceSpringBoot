@@ -1,5 +1,6 @@
 package com.example.ecomProject.services;
 
+import com.example.ecomProject.exceptions.EmptyCartException;
 import com.example.ecomProject.exceptions.ItemDoesntExistException;
 import com.example.ecomProject.exceptions.ItemExistsInCartException;
 import com.example.ecomProject.models.Cart;
@@ -8,6 +9,7 @@ import com.example.ecomProject.models.Product;
 import com.example.ecomProject.models.User;
 import com.example.ecomProject.models.dtos.AddToCartRequest;
 import com.example.ecomProject.models.dtos.CartResponse;
+import com.example.ecomProject.models.dtos.ProductResponse;
 import com.example.ecomProject.repo.CartItemRepo;
 import com.example.ecomProject.repo.CartRepo;
 import com.example.ecomProject.repo.ProductRepo;
@@ -17,7 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class CartService
@@ -37,6 +39,9 @@ public class CartService
     @Autowired
     private CartRepo cartRepo;
 
+    @Autowired
+    private ProductService productService;
+
     public void createCart(User user)
     {
         Cart newCart = new Cart();
@@ -48,6 +53,9 @@ public class CartService
 
     public CartResponse createCartResponse(Cart userCart)
     {
+        if (userCart == null)
+            throw new EmptyCartException();
+
         CartResponse response = new CartResponse();
         response.setCartTotal(userCart.getTotalPrice());
 
@@ -184,5 +192,43 @@ public class CartService
 
         cartRepo.save(userCart);
         return createCartResponse(userCart);
+    }
+
+    public List<List<ProductResponse>> getRelatedProducts(Authentication auth)
+    {
+        List<List<ProductResponse>> relatedProds = new ArrayList<>();
+
+        String username = auth.getName();
+        User user = userRp.findByUsername(username);
+        Cart userCart = user.getCart();
+
+        if (userCart == null)
+            throw new EmptyCartException();
+
+        if (userCart.getCartItems() == null || userCart.getCartItems().isEmpty()) // I think the order of these conditions matters here...
+            throw new EmptyCartException();
+
+        List<CartItem> items = userCart.getCartItems();
+        HashMap<String, Set<Integer>> hmp = new HashMap<>();
+        for (CartItem item : items)
+        {
+            Product prod = item.getProduct();
+            String category = prod.getCategory();
+
+            if (hmp.containsKey(category) == false)
+            {
+                hmp.put(category, new HashSet<>());
+            }
+            hmp.get(category).add(prod.getId());
+        }
+
+        Set<String> categoriesPresentInCart = hmp.keySet();
+        for (String category : categoriesPresentInCart)
+        {
+            Set<Integer> idsPresent = hmp.get(category);
+            List<ProductResponse> responses = productService.findRelated(category, idsPresent);
+            relatedProds.add(responses);
+        }
+        return relatedProds;
     }
 }

@@ -87,6 +87,9 @@ public class OrderService
         User user = userRepo.findByUsername(username);
         Cart userCart = user.getCart();
 
+        if (userCart == null)
+            throw new EmptyCartException();
+
         if (userCart.getCartItems().isEmpty())
             throw new EmptyCartException();
 

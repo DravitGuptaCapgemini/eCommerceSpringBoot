@@ -3,6 +3,7 @@ package com.example.ecomProject.controllers;
 import com.example.ecomProject.models.dtos.AddToCartRequest;
 import com.example.ecomProject.models.dtos.CartResponse;
 import com.example.ecomProject.models.dtos.OrderResponse;
+import com.example.ecomProject.models.dtos.ProductResponse;
 import com.example.ecomProject.repo.UserRepo;
 import com.example.ecomProject.services.CartService;
 import com.example.ecomProject.services.OrderService;
@@ -85,5 +86,12 @@ public class CartController
                 orderResponses,
                 HttpStatus.OK
         );
+    }
+
+    @GetMapping("/get-related")
+    public ResponseEntity<?> getRelatedProducts(Authentication auth)
+    {
+        List<List<ProductResponse>> relatedProducts = srvce.getRelatedProducts(auth);
+        return new ResponseEntity<>(relatedProducts, HttpStatus.OK);
     }
 }
