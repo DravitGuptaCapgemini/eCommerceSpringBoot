@@ -3,6 +3,7 @@ package com.example.ecomProject.services;
 import com.example.ecomProject.exceptions.EmptyCartException;
 import com.example.ecomProject.exceptions.ItemDoesntExistException;
 import com.example.ecomProject.exceptions.ItemExistsInCartException;
+import com.example.ecomProject.exceptions.NoRecommendationsException;
 import com.example.ecomProject.models.Cart;
 import com.example.ecomProject.models.CartItem;
 import com.example.ecomProject.models.Product;
@@ -197,6 +198,7 @@ public class CartService
     public List<List<ProductResponse>> getRelatedProducts(Authentication auth)
     {
         List<List<ProductResponse>> relatedProds = new ArrayList<>();
+        int quantityOfRelatedProds = 0;
 
         String username = auth.getName();
         User user = userRp.findByUsername(username);
@@ -228,7 +230,12 @@ public class CartService
             Set<Integer> idsPresent = hmp.get(category);
             List<ProductResponse> responses = productService.findRelated(category, idsPresent);
             relatedProds.add(responses);
+            quantityOfRelatedProds += responses.size();
         }
+
+        if (quantityOfRelatedProds == 0)
+            throw new NoRecommendationsException();
+
         return relatedProds;
     }
 }
