@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -91,7 +92,7 @@ public class CartController
     @GetMapping("/get-related")
     public ResponseEntity<?> getRelatedProducts(Authentication auth)
     {
-        List<List<ProductResponse>> relatedProducts = srvce.getRelatedProducts(auth);
+        HashMap<String, List<ProductResponse>> relatedProducts = srvce.getRelatedProducts(auth);
         return new ResponseEntity<>(relatedProducts, HttpStatus.OK);
     }
 }

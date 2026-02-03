@@ -195,9 +195,9 @@ public class CartService
         return createCartResponse(userCart);
     }
 
-    public List<List<ProductResponse>> getRelatedProducts(Authentication auth)
+    public HashMap<String, List<ProductResponse>> getRelatedProducts(Authentication auth)
     {
-        List<List<ProductResponse>> relatedProds = new ArrayList<>();
+        HashMap<String, List<ProductResponse>> relatedProds = new HashMap<>();
         int quantityOfRelatedProds = 0;
 
         String username = auth.getName();
@@ -207,7 +207,7 @@ public class CartService
         if (userCart == null)
             throw new EmptyCartException();
 
-        if (userCart.getCartItems() == null || userCart.getCartItems().isEmpty()) // I think the order of these conditions matters here...
+        if (userCart.getCartItems() == null || userCart.getCartItems().isEmpty())
             throw new EmptyCartException();
 
         List<CartItem> items = userCart.getCartItems();
@@ -218,9 +218,8 @@ public class CartService
             String category = prod.getCategory();
 
             if (hmp.containsKey(category) == false)
-            {
                 hmp.put(category, new HashSet<>());
-            }
+
             hmp.get(category).add(prod.getId());
         }
 
@@ -229,7 +228,7 @@ public class CartService
         {
             Set<Integer> idsPresent = hmp.get(category);
             List<ProductResponse> responses = productService.findRelated(category, idsPresent);
-            relatedProds.add(responses);
+            relatedProds.put(category, responses);
             quantityOfRelatedProds += responses.size();
         }
 
