@@ -228,7 +228,8 @@ public class CartService
         {
             Set<Integer> idsPresent = hmp.get(category);
             List<ProductResponse> responses = productService.findRelated(category, idsPresent);
-            relatedProds.put(category, responses);
+            if (responses.isEmpty() == false)
+                relatedProds.put(category, responses);
             quantityOfRelatedProds += responses.size();
         }
 

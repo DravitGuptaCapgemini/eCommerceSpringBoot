@@ -126,13 +126,12 @@ public class ProductService
 
     public List<ProductResponse> findRelated(String category, Set<Integer> idsPresent)
     {
-        List<Product> products = rp.findByCategory(category); // rp is the product repository
+        List<Product> products = rp.findByCategoryAndIdNotIn(category, idsPresent); // rp is the product repository
         List<ProductResponse> productResponses = new ArrayList<>();
 
         for (Product p : products)
         {
-            if (idsPresent.contains(p.getId()) == false)
-                productResponses.add(prodToProdResp(p));
+            productResponses.add(prodToProdResp(p));
         }
         return productResponses;
     }
